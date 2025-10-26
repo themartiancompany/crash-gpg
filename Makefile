@@ -46,9 +46,9 @@ shellcheck:
 	    "bash" \
 	  $(SCRIPT_FILES)
 
-install: install-scripts install-doc install-man
+install: install-$(_PROJECT) install-doc install-man
 
-install-scripts:
+install-crash-gpg:
 
 	$(_INSTALL_DIR) \
 	  "$(LIB_DIR)"
@@ -71,4 +71,4 @@ install-man:
 	  "man/$(_PROJECT).1.rst" \
 	  "$(MAN_DIR)/$(_PROJECT).1"
 
-.PHONY: check install install-doc install-man install-scripts shellcheck
+.PHONY: check install install-doc install-man install-$(_PROJECT) shellcheck
