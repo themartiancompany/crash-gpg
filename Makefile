@@ -24,6 +24,7 @@ _PROJECT=crash-gpg
 DOC_DIR=$(DESTDIR)$(PREFIX)/share/doc/lib$(_PROJECT)
 DATA_DIR=$(DESTDIR)$(PREFIX)/share/lib$(_PROJECT)
 LIB_DIR=$(DESTDIR)$(PREFIX)/lib/lib$(_PROJECT)
+BIN_DIR=$(DESTDIR)$(PREFIX)/bin
 MAN_DIR?=$(DESTDIR)$(PREFIX)/share/man
 
 _INSTALL_FILE=\
@@ -65,6 +66,9 @@ install-crash-gpg:
 	$(_INSTALL_EXE) \
 	  "$(_PROJECT)/$(_PROJECT)" \
 	  "$(LIB_DIR)"
+	$(_INSTALL_EXE) \
+	  "$(_PROJECT)/$(_PROJECT)-requirements" \
+	  "$(BIN_DIR)/$(_PROJECT)-requirements"
 
 install-doc:
 
