@@ -26,6 +26,16 @@ DATA_DIR=$(DESTDIR)$(PREFIX)/share/lib$(_PROJECT)
 LIB_DIR=$(DESTDIR)$(PREFIX)/lib/lib$(_PROJECT)
 MAN_DIR?=$(DESTDIR)$(PREFIX)/share/man
 
+_INSTALL_FILE=\
+  install \
+    -vDm644
+_INSTALL_DIR=\
+  install \
+    -vdm755
+_INSTALL_EXE=\
+  install \
+    -vDm755
+
 DOC_FILES=\
   $(wildcard \
       *.rst) \
