@@ -62,7 +62,7 @@ _gpg_import_show_key() {
 _key_secret_absent_assert() {
   local \
     _key="${1}" \
-    _exit="${2}" \
+    _exit \
     _grep_opts=() \
     _results \
     _msg=()
@@ -161,10 +161,10 @@ _key_file_assert() {
     _msg=() \
     _keys_amount
   _type="public"
+  _single="true"
   if (( 1 < "${#}" )); then
     _type="${2}"
   fi
-  _single="true"
   if (( 2 < "${#}" )); then
     _single="${3}"
   fi
