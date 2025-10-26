@@ -20,11 +20,11 @@
 #    along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 PREFIX ?= /usr/local
-_PROJECT=gpg-key-info
-DOC_DIR=$(DESTDIR)$(PREFIX)/share/doc/$(_PROJECT)
-BIN_DIR=$(DESTDIR)$(PREFIX)/bin
+_PROJECT=crash-gpg
+DOC_DIR=$(DESTDIR)$(PREFIX)/share/doc/lib$(_PROJECT)
+DATA_DIR=$(DESTDIR)$(PREFIX)/share/lib$(_PROJECT)
+LIB_DIR=$(DESTDIR)$(PREFIX)/lib/lib$(_PROJECT)
 MAN_DIR?=$(DESTDIR)$(PREFIX)/share/man
-LIB_DIR=$(DESTDIR)$(PREFIX)/lib
 
 DOC_FILES=\
   $(wildcard \
@@ -46,13 +46,15 @@ shellcheck:
 	    "bash" \
 	  $(SCRIPT_FILES)
 
-install: install-scripts install-doc
+install: install-scripts install-doc install-man
 
 install-scripts:
 
+	$(_INSTALL_DIR) \
+	  "$(LIB_DIR)"
 	$(_INSTALL_EXE) \
 	  "$(_PROJECT)/$(_PROJECT)" \
-	  "$(BIN_DIR)/$(_PROJECT)"
+	  "$(LIB_DIR)"
 
 install-doc:
 
@@ -69,4 +71,4 @@ install-man:
 	  "man/$(_PROJECT).1.rst" \
 	  "$(MAN_DIR)/$(_PROJECT).1"
 
-.PHONY: check install install-doc install-scripts shellcheck
+.PHONY: check install install-doc install-man install-scripts shellcheck
