@@ -62,9 +62,14 @@ _gpg_import_show_key() {
 _key_secret_absent_assert() {
   local \
     _key="${1}" \
+    _exit="${2}" \
     _grep_opts=() \
     _results \
     _msg=()
+  _exit=1
+  if (( 1 < "${#}" )); then
+    _exit="${2}"
+  fi
   _grep_opts+=(
     -c
     -e
@@ -148,20 +153,36 @@ _key_exists() {
   fi
 }
 
-_key_file_check() {
+_key_file_assert() {
   local \
     _key="${1}" \
+    _type \
+    _single \
     _msg=() \
     _keys_amount
+  _type="public"
+  if (( 1 < "${#}" )); then
+    _type="${2}"
+  fi
+  _single="true"
+  if (( 2 < "${#}" )); then
+    _single="${3}"
+  fi
   _key_exists \
     "${_key}"
-  _key_secret_absent_assert \
-    "${_key}"
+  if [[ "${_type}" == "public" ]]; then
+    _key_secret_absent_assert \
+      "${_key}"
+  fi
   _keys_amount="$( \
     _keys_amount_get \
       "${_key}")"
-  _key_single_assert
-  _key_public_assert
+  if [[ "${_single}" == "true" ]]; then
+    _key_single_assert
+  fi
+  if [[ "${_type}" == "public" ]]; then
+    _key_public_assert
+  fi
 }
 
 _fingerprint_short_unique_assert() {
