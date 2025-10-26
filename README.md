@@ -1,8 +1,83 @@
-# GNU Privacy Guard Key Info
+[comment]: <> (SPDX-License-Identifier: AGPL-3.0)
 
-Extract information from a target key file.
+[comment]: <> (-------------------------------------------------------------)
+[comment]: <> (Copyright © 2024, 2025  Pellegrino Prevete)
+[comment]: <> (All rights reserved)
+[comment]: <> (-------------------------------------------------------------)
 
+[comment]: <> (This program is free software: you can redistribute)
+[comment]: <> (it and/or modify it under the terms of the GNU Affero)
+[comment]: <> (General Public License as published by the Free)
+[comment]: <> (Software Foundation, either version 3 of the License.)
+
+[comment]: <> (This program is distributed in the hope that it will be useful,)
+[comment]: <> (but WITHOUT ANY WARRANTY; without even the implied warranty of)
+[comment]: <> (MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the)
+[comment]: <> (GNU Affero General Public License for more details.)
+
+[comment]: <> (You should have received a copy of the GNU Affero General Public)
+[comment]: <> (License along with this program.)
+[comment]: <> (If not, see <https://www.gnu.org/licenses/>.)
+
+# Crash GNU Privacy Guard (`crash-gpg`)
+
+A library of useful Bash programs
+to interact with GNU Privacy
+Guard.
+
+The `evm-contract-call` program uses the 
+[Ethers](
+  https://github.com/ethers-io/ethers.js)
+JavaScript library to
+communicate with Ethereum Virtual Machine-compatible
+blockchain networks and integrates natively with
+and depends on the
+[EVM Wallet](
+  https://github.com/themartiancompany/evm-wallet),
+but it's also possible to directly provide seeds files.
+
+The library is a required software dependency for
+[EVM GNUPG](
+  https://github.com/themartiancompany/libevm).
+
+## Installation
+
+The library in this source repo
+can be installed from source using GNU Make.
+
+```bash
+make \
+  install
 ```
-gpg-key-info \
-  -h
+
+The collection has officially published on the
+the uncensorable
+[Ur](
+  https://github.com/themartiancompany/ur)
+user repository and application store as
+`libcrash-gpg`.
+The source code is published on the
+[Ethereum Virtual Machine File System](
+  https://github.com/themartiancompany/evmfs)
+so it can't possibly be taken down.
+
+To install it from there just type
+
+```bash
+ur \
+  libcrash-gpg
 ```
+
+A censorable HTTP Github mirror of the recipe published there,
+containing a full list of the software dependencies needed to run the
+tools is hosted on
+[libcrash-gpg-ur](
+  https://github.com/themartiancompany/libcrash-gpg-ur).
+
+Be aware the mirror could go offline any time as Github and more
+in general all HTTP resources are inherently unstable and censorable.
+
+## License
+
+This program is released by Pellegrino Prevete under the terms
+of the GNU Affero General Public License version 3.

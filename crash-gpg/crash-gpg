@@ -1,0 +1,311 @@
+#!/usr/bin/env bash
+
+# SPDX-License-Identifier: GPL-3.0-or-later
+
+#    ----------------------------------------------------------------------
+#    Copyright © 2024, 2025  Pellegrino Prevete
+#
+#    All rights reserved
+#    ----------------------------------------------------------------------
+#
+#    This program is free software: you can redistribute it and/or modify
+#    it under the terms of the GNU Affero General Public License as published by
+#    the Free Software Foundation, either version 3 of the License, or
+#    (at your option) any later version.
+#
+#    This program is distributed in the hope that it will be useful,
+#    but WITHOUT ANY WARRANTY; without even the implied warranty of
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#    GNU Affero General Public License for more details.
+#
+#    You should have received a copy of the GNU Affero General Public License
+#    along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
+
+_crash_gpg_requirements() {
+  _check_cmd \
+    "awk" \
+    "gawk"
+  _check_cmd \
+    "gpg" \
+    "gnupg"
+  _check_cmd \
+    "grep"
+}
+
+_gpg_import_show_key() {
+  local \
+    _key="${1}" \
+    _gpg_opts=()
+  _gpg_opts+=(
+    --homedir "${_gnupg_home}"
+    --import-options
+      show-only
+    --import
+    --keyid-format="long"
+    --with-colons
+  )
+  cat \
+    "${_key}" | \
+    GNUPGHOME="${_gnupg_home}" \
+    gpg \
+      "${_gpg_opts[@]}" \
+      2>"/dev/null"
+}
+
+_key_secret_absent_assert() {
+  local \
+    _key="${1}" \
+    _grep_opts=() \
+    _results \
+    _msg=()
+  _grep_opts+=(
+    -c
+    -e
+      "^sec:"
+    -e
+      "^ssb:"
+  )
+  _results="$( \
+    _gpg_import_show_key \
+      "${_key}" | \
+      grep \
+        "${_grep_opts[@]}" || \
+    true)"
+  if (( 0 < "${_results}" )); then
+    _msg=(
+      "The key file '${_key}' contains"
+      "a secret key."
+    )
+    _msg_error \
+      "${_msg[*]}" \
+      1
+  fi
+}
+
+_keys_amount_get() {
+  local \
+    _key="${1}" \
+    _grep_opts=()
+  _grep_opts+=(
+    -c
+      "^pub:"
+  )
+  _gpg_import_show_key \
+    "${_key}" | \
+    grep \
+      "${_grep_opts[@]}"
+}
+
+_key_single_assert() {
+  local \
+    _exit
+  _exit=1
+  if (( 0 < "${#}" )); then
+    _exit="${1}"
+  fi
+  if (( 1 < "${_keys_amount}" )); then
+    _msg=(
+      "The key file contains more than"
+      "a public key."
+    )
+    _msg_error \
+      "${_msg[*]}" \
+      "${_exit}"
+  fi
+}
+
+_key_public_assert() {
+  if (( 0 == "${_keys_amount}" )); then
+    _msg=(
+      "Input target key file '${_key}'"
+      "does not not contains public keys."
+    )
+    _msg_error \
+      "${_msg[*]}" \
+      1
+  fi
+
+}
+
+_key_exists() {
+  local \
+    _key="${1}"
+  if [[ ! -e "${_key}" ]]; then
+    _msg=(
+      "Input target key file '${_key}'"
+      "does not exist."
+    )
+    _msg_error \
+      "${_msg[*]}" \
+      1
+  fi
+}
+
+_key_file_check() {
+  local \
+    _key="${1}" \
+    _msg=() \
+    _keys_amount
+  _key_exists \
+    "${_key}"
+  _key_secret_absent_assert \
+    "${_key}"
+  _keys_amount="$( \
+    _keys_amount_get \
+      "${_key}")"
+  _key_single_assert
+  _key_public_assert
+}
+
+_fingerprint_short_unique_assert() {
+  if (( 0 == "${#_fingerprint_matches[@]}" )); then
+    _msg=(
+      "Somehow the short public key fingerprint does not match"
+      "any full key fingerprint, please check the key file."
+    )
+    _msg_error \
+      "${_msg[*]}" \ 
+      1
+  elif (( 1 < "${#_fingerprint_matches[@]}" )); then
+    _msg=(
+      "Somehow the short public key fingerprint identify"
+      "more than a single full key fingerprint,"
+      "please check the key file."
+    )
+    _msg_error \
+      "${_msg[*]}" \ 
+      1
+  fi
+}
+
+_key_fingerprint_short_get() {
+  local \
+    _key="${1}" \
+    _grep_opts=()
+  _grep_opts+=(
+    -e
+      "^pub:"
+  )
+  _awk_opts+=(
+    -F
+      ":"
+  )
+  _gpg_import_show_key \
+    "${_key}" | \
+    grep \
+      "${_grep_opts[@]}" | \
+      awk \
+        "${_awk_opts[@]}" \
+        '{print $5}'
+}
+
+_key_fingerprints_get() {
+  local \
+    _key="${1}" \
+    _grep_opts=()
+  _grep_opts+=(
+    -e
+      "^fpr:"
+  )
+  _awk_opts+=(
+    -F
+      ":"
+  )
+  _gpg_import_show_key \
+    "${_key}" | \
+    grep \
+      "${_grep_opts[@]}" | \
+      awk \
+        "${_awk_opts[@]}" \
+        '{print $10}'
+}
+
+_key_fingerprint_get() {
+  local \
+    _key="${1}" \
+    _fingerprint_short \
+    _fingerprint \
+    _fingerprints=() \
+    _fingerprint_matches=() \
+    _msg=()
+  _fingerprint_short="$( \
+    _key_fingerprint_short_get \
+      "${_key}")"
+  _fingerprints=( $( \
+    _key_fingerprints_get \
+      "${_key}")
+  )
+  for _fingerprint in "${_fingerprints[@]}"; do
+    if [[ "${_fingerprint}" == *"${_short_fingerprint}" ]]; then
+      _fingerprint_matches+=(
+        "${_fingerprint}"
+      )
+    fi
+  done
+  _fingerprint_short_unique_assert
+  echo \
+    "${_fingerprint_matches[0]}"
+}
+
+_key_id_get() {
+  local \
+    _key="${1}" \
+    _user_id \
+    _user_id_packet_string \
+    _user_id_dirty \
+    _gpg_opts=()
+  _gpg_opts+=(
+    --list-packets
+  )
+  _user_id_packet_string="$( \
+    cat \
+      "${_key}" | \
+      gpg \
+        "${_gpg_opts[@]}" \
+        2>"/dev/null" | \
+        grep \
+          "^:user ID packet")"
+  _user_id_dirty="${_user_id_packet_string#:user ID packet: \"}"
+  _user_id="${_user_id_dirty%\"}"
+  echo \
+    "${_user_id}"
+}
+
+_key_name_get() {
+  local \
+    _key="${1}" \
+    _name_rev \
+    _user_id \
+    _user_id_rev
+  _user_id="$( \
+    _key_id_get \
+      "${_key}")"
+  _user_id_rev="$( \
+    echo \
+      "${_user_id}" | \
+      rev)"
+  _name_rev="${_user_id_rev#*< }"
+  echo \
+    "${_name_rev}" | \
+    rev
+}
+
+_key_email_get() {
+  local \
+    _key="${1}" \
+    _email_dirty \
+    _user_id \
+    _pattern
+  _user_id="$( \
+    _key_id_get \
+      "${_key}")"
+  _pattern="$( \
+    _key_name_get \
+      "${_key}") <"
+  _email_dirty="${_user_id//"${_pattern}"}"
+  echo \
+    "${_email_dirty%>}"
+}
+
+# vim:set sw=2 sts=-1 et:
