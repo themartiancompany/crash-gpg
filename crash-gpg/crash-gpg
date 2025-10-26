@@ -264,7 +264,7 @@ _key_fingerprint_get() {
       "${_key}")
   )
   for _fingerprint in "${_fingerprints[@]}"; do
-    if [[ "${_fingerprint}" == *"${_short_fingerprint}" ]]; then
+    if [[ "${_fingerprint}" == *"${_fingerprint_short}" ]]; then
       _fingerprint_matches+=(
         "${_fingerprint}"
       )
