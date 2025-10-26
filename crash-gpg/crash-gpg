@@ -24,6 +24,9 @@
 
 _crash_gpg_requirements() {
   _check_cmd \
+    "cat" \
+    "coreutils"
+  _check_cmd \
     "awk" \
     "gawk"
   _check_cmd \
@@ -31,6 +34,9 @@ _crash_gpg_requirements() {
     "gnupg"
   _check_cmd \
     "grep"
+  _check_cmd \
+    "rev" \
+    "util-linux"
 }
 
 _gpg_import_show_key() {
