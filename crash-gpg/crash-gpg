@@ -77,7 +77,7 @@ _key_secret_absent_assert() {
     -e
       "^ssb:"
   )
-  _results="$( \
+  _results="$(
     _gpg_import_show_key \
       "${_key}" | \
       grep \
@@ -90,7 +90,7 @@ _key_secret_absent_assert() {
     )
     _msg_error \
       "${_msg[*]}" \
-      1
+      "${_exit}"
   fi
 }
 
