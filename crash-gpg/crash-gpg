@@ -52,7 +52,7 @@ _gpg_import_show_key() {
     --with-colons
   )
   cat \
-    "${_key}" | \
+    "${_key}" |
     GNUPGHOME="${_gnupg_home}" \
     gpg \
       "${_gpg_opts[@]}" \
@@ -79,7 +79,7 @@ _key_secret_absent_assert() {
   )
   _results="$(
     _gpg_import_show_key \
-      "${_key}" | \
+      "${_key}" |
       grep \
         "${_grep_opts[@]}" || \
     true)"
@@ -103,7 +103,7 @@ _keys_amount_get() {
       "^pub:"
   )
   _gpg_import_show_key \
-    "${_key}" | \
+    "${_key}" |
     grep \
       "${_grep_opts[@]}"
 }
@@ -206,11 +206,42 @@ _fingerprint_short_unique_assert() {
   fi
 }
 
-_key_fingerprint_algorithm_get() {
+_key_algorithm_get() {
   local \
-    _key="${1}"
-  _gpg_import_show_key \
-    "${_key}" 
+    _key="${1}" \
+    _type \
+    _out \
+    _grep_opts=() \
+    _awk_opts=()
+  _type="encryption"
+  if (( 1 < "${#}" )); then
+    _type="${2}"
+  fi
+  _awk_opts+=(
+    -F
+      ":"
+  )
+  _out="$(
+    _gpg_import_show_key \
+      "${_key}")"
+  if [[ "${_type}" == "encryption" ]]; then
+    _grep_opts+=(
+      -e
+       "^sub:"
+    )
+  elif [[ "${_type}" == "signature" ]]; then
+    _grep_opts+=(
+      -e
+       "^pub:"
+    )
+  fi
+  echo \
+    "${_out}" |
+    grep \
+      "${_grep_opts[@]}" |
+      awk \
+        "${_awk_opts[@]}" \
+        '{print $16}'
 }
 
 _key_fingerprint_short_get() {
@@ -226,9 +257,9 @@ _key_fingerprint_short_get() {
       ":"
   )
   _gpg_import_show_key \
-    "${_key}" | \
+    "${_key}" |
     grep \
-      "${_grep_opts[@]}" | \
+      "${_grep_opts[@]}" |
       awk \
         "${_awk_opts[@]}" \
         '{print $5}'
@@ -247,9 +278,9 @@ _key_fingerprints_get() {
       ":"
   )
   _gpg_import_show_key \
-    "${_key}" | \
+    "${_key}" |
     grep \
-      "${_grep_opts[@]}" | \
+      "${_grep_opts[@]}" |
       awk \
         "${_awk_opts[@]}" \
         '{print $10}'
@@ -294,10 +325,10 @@ _key_id_get() {
   )
   _user_id_packet_string="$( \
     cat \
-      "${_key}" | \
+      "${_key}" |
       gpg \
         "${_gpg_opts[@]}" \
-        2>"/dev/null" | \
+        2>"/dev/null" |
         grep \
           "^:user ID packet")"
   _user_id_dirty="${_user_id_packet_string#:user ID packet: \"}"
@@ -317,11 +348,11 @@ _key_name_get() {
       "${_key}")"
   _user_id_rev="$( \
     echo \
-      "${_user_id}" | \
+      "${_user_id}" |
       rev)"
   _name_rev="${_user_id_rev#*< }"
   echo \
-    "${_name_rev}" | \
+    "${_name_rev}" |
     rev
 }
 
