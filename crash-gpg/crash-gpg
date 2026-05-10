@@ -206,6 +206,13 @@ _fingerprint_short_unique_assert() {
   fi
 }
 
+_key_fingerprint_algorithm_get() {
+  local \
+    _key="${1}"
+  _gpg_import_show_key \
+    "${_key}" 
+}
+
 _key_fingerprint_short_get() {
   local \
     _key="${1}" \
