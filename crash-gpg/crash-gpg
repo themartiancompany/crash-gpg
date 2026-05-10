@@ -238,10 +238,14 @@ _key_algorithm_get() {
   echo \
     "${_out}" |
     grep \
+      "${_grep_opts[@]}"
+  echo \
+    "${_out}" |
+    grep \
       "${_grep_opts[@]}" |
       awk \
         "${_awk_opts[@]}" \
-        '{print $16}'
+        '{print $15}'
 }
 
 _key_fingerprint_short_get() {
